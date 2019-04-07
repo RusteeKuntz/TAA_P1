@@ -6,6 +6,6 @@ package pt.up.fcup.taa.project1;
  */
 public enum PointType {
     
-    IN, OUT;
+    IN, OUT, VERTEX;
     
 }
