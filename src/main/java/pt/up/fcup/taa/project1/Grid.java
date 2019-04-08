@@ -7,16 +7,14 @@ import javafx.util.Pair;
 
 /**
  *
- * TODO choose point, check line visibility
- *
  * @author Ayy lmao
  */
 public final class Grid {
 
-    private PointType[][] grid;
-    private List<Point> vertices;
-    private List<Point> freePoints;
-    private final int MAX_SIZE = 20;
+    private PointType[][] grid;         //grid representation
+    private List<Point> vertices;       //ordered list of current vertices
+    private List<Point> freePoints;     //list of points outside of the polygon
+    private final int MAX_SIZE = 20;    //max height/width of the grid
     private final Random rand = new Random(12345);
 
     //deprecated
@@ -30,7 +28,9 @@ public final class Grid {
         vertices = new ArrayList();
     }
 
-    //default starting grid
+    /**
+     * Creates a default 4x4 grid with a triangle inside
+     */
     public Grid() {
         grid = new PointType[4][4];
         for (int i = 0; i < 4; ++i) {
@@ -41,12 +41,16 @@ public final class Grid {
         grid[1][1] = PointType.IN;
         grid[1][2] = PointType.IN;
         grid[2][2] = PointType.IN;
+        vertices = new ArrayList<>();
         vertices.add(new Point(1, 1));
         vertices.add(new Point(1, 2));
         vertices.add(new Point(2, 2));
         updateFreePoints();
     }
 
+    /**
+     * Find all of the points that could currently be used as a new vertex
+     */
     public void updateFreePoints() {
         freePoints = new ArrayList<>();
         for (int i = 0; i < grid.length; ++i) {
@@ -58,6 +62,13 @@ public final class Grid {
         }
     }
 
+    /**
+     * If a border of the grid is reached, it is expanded in the relevant
+     * direction
+     *
+     * @param b which border to expand
+     * @param n how much the border should be expanded
+     */
     public void expand(Border b, int n) {
         if (b == null) {
             return;
@@ -136,6 +147,12 @@ public final class Grid {
         grid = newGrid;
     }
 
+    /**
+     * Checks whether a point is on any border of the grid
+     *
+     * @param p point
+     * @return border which p lies on or @null if none
+     */
     public Border isBorder(Point p) {
         if (p.getX() == 0) {
             return Border.LEFT;
@@ -149,6 +166,16 @@ public final class Grid {
         return null;
     }
 
+    /**
+     * Sets all points between a, b and c to be considered inside the polygon,
+     * hence they can not be chosen as a new vertex. The function identifies the
+     * points as the ones which are on the left of all three line segments. Only
+     * checks the points inside the triangle's bounding box.
+     *
+     * @param a point
+     * @param b point
+     * @param c point
+     */
     private void fillTriangle(Point a, Point b, Point c) {
         int xMin = Math.min(a.getX(), Math.min(b.getX(), c.getX()));
         int xMax = Math.max(a.getX(), Math.max(b.getX(), c.getX()));
@@ -166,11 +193,27 @@ public final class Grid {
         }
     }
 
-    private float orientation(Point p, Point a, Point b) {
-        return Math.signum((b.getX() - a.getX()) * (p.getY() - a.getY())
+    /**
+     * Checks whether the angle ABP is positive, negative or zero
+     *
+     * @param p point
+     * @param a point
+     * @param b point
+     * @return 0 if ABP is a line, 1 if it's a left turn, -1 if right
+     */
+    private int orientation(Point p, Point a, Point b) {
+        return (int) -Math.signum((b.getX() - a.getX()) * (p.getY() - a.getY())
                 - (b.getY() - a.getY()) * (p.getX() - a.getX()));
     }
 
+    /**
+     * Checks if you can draw a line from a to b without intersecting the
+     * existing polygon
+     *
+     * @param a point
+     * @param b point
+     * @return true if b is visible from a (and vice versa)
+     */
     private boolean isVisible(Point a, Point b) {
         for (int i = 0; i < vertices.size(); ++i) {
             Point c = vertices.get(i);
@@ -182,6 +225,15 @@ public final class Grid {
         return true;
     }
 
+    /**
+     * Checks whether AB and CD intersect using orientation cases
+     *
+     * @param a point
+     * @param b point
+     * @param c point
+     * @param d point
+     * @return
+     */
     private boolean intersects(Point a, Point b, Point c, Point d) {
         float o1 = orientation(c, a, b);
         float o2 = orientation(d, a, b);
@@ -203,6 +255,15 @@ public final class Grid {
         return (o1 == -o2) && (o3 == -o4);
     }
 
+    /**
+     * Adds a vertex to the current polygon.
+     *
+     * The function first picks a free point P at random, then finds all of the
+     * edges visible from this vertex. If there are none, it removes P from list
+     * of candidates and picks again. If the list of edges is not empty, it
+     * chooses a random edge AB and divides it into AP and PB, keeping the CCW
+     * order.
+     */
     public void addVertex() {
         Point p;
         List<Pair<Point, Point>> edges = new ArrayList<>();
@@ -222,14 +283,19 @@ public final class Grid {
                 continue;
             }
 
-            Pair<Point, Point> edge = edges.get((int) Math.floor(rand.nextDouble() * freePoints.size()));
+            int n = (int) Math.floor(rand.nextDouble() * edges.size());
+            Pair<Point, Point> edge = edges.get(n);
             Point a = edge.getKey();
             Point b = edge.getValue();
             List<Point> newVertices = new ArrayList<>();
-            newVertices.addAll(vertices.subList(0, vertices.indexOf(a)));
-            newVertices.add(p);
-            newVertices.addAll(vertices.subList(vertices.indexOf(b), vertices.size() - 1));
-            vertices = newVertices;
+            if (vertices.indexOf(b) != 0) {
+                newVertices.addAll(vertices.subList(0, vertices.indexOf(a) + 1));
+                newVertices.add(p);
+                newVertices.addAll(vertices.subList(vertices.indexOf(b), vertices.size()));
+                vertices = newVertices;
+            } else {
+                vertices.add(p);
+            }
 
             fillTriangle(a, p, b);
             expand(isBorder(p), 1);
@@ -238,14 +304,24 @@ public final class Grid {
         }
     }
 
+    /**
+     * Prints the current grid to the console
+     */
     public void printGrid() {
+        for (int i = 0; i < vertices.size(); ++i) {
+            grid[vertices.get(i).getX()][vertices.get(i).getY()] = PointType.VERTEX;
+        }
         for (int j = 0; j < grid[0].length; ++j) {
             for (int i = 0; i < grid.length; ++i) {
-                System.out.print((grid[i][j] == PointType.OUT) ? "." : "X");
+                if (grid[i][j] == PointType.VERTEX) {
+                    System.out.print("O");
+                } else {
+                    System.out.print((grid[i][j] == PointType.OUT) ? "." : "x");
+                }
             }
             System.out.println();
         }
-        for (int i = 0; i < grid.length; ++i) {
+        for (int i = 0; i < grid.length + 3; ++i) {
             System.out.print("-");
         }
         System.out.println();
