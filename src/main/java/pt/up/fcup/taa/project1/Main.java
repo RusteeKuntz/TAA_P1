@@ -1,12 +1,13 @@
 package pt.up.fcup.taa.project1;
 
 /**
+ * Main class for polygon generation
  *
- * @author Ayy lmao
+ * @author Dusan Hetlerovic, Vincent Lopes
  */
 public class Main {
 
-    private static final int VERTICES = 50;
+    private static final int VERTICES = 40;
 
     public static void main(String[] args) {
 
@@ -16,9 +17,8 @@ public class Main {
             grid.addVertex();
             grid.printGrid();
             try {
-                Thread.sleep(200);
+                Thread.sleep(1500);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

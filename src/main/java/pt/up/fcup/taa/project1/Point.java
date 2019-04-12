@@ -1,11 +1,12 @@
 package pt.up.fcup.taa.project1;
 
 /**
+ * Point class
  *
- * @author Ayy lmao
+ * @author Dusan Hetlerovic, Vincent Lopes
  */
 public class Point {
-    
+
     private int x, y;
     private Point before, after;
 
@@ -59,22 +60,20 @@ public class Point {
         return true;
     }
 
-	public Point getBefore() {
-		return before;
-	}
+    public Point getBefore() {
+        return before;
+    }
 
-	public void setBefore(Point before) {
-		this.before = before;
-	}
+    public void setBefore(Point before) {
+        this.before = before;
+    }
 
-	public Point getAfter() {
-		return after;
-	}
+    public Point getAfter() {
+        return after;
+    }
 
-	public void setAfter(Point after) {
-		this.after = after;
-	}
-    
-    
-    
+    public void setAfter(Point after) {
+        this.after = after;
+    }
+
 }

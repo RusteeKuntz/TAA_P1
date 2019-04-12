@@ -6,8 +6,9 @@ import java.util.Random;
 import javafx.util.Pair;
 
 /**
+ * The Grid class with all the needed backend operations
  *
- * @author Ayy lmao
+ * @author Dusan Hetlerovic
  */
 public final class Grid {
 
@@ -17,7 +18,6 @@ public final class Grid {
     private final int MAX_SIZE = 20;    //max height/width of the grid
     private final Random rand = new Random(123456);
     private final Window window = new Window();
-    private int counter = 0;
 
     //deprecated
     public Grid(int n, int m) {
@@ -298,10 +298,6 @@ public final class Grid {
                 }
             }
 
-            if (counter > 14) {
-                counter = counter;
-            }
-
             if (edges.isEmpty()) {
                 freePoints.remove(p);
                 edges.clear();
@@ -327,7 +323,6 @@ public final class Grid {
             p.setAfter(b);
             expand(isBorder(p), 1);
             updateFreePoints();
-            counter++;
             return;
         }
     }
