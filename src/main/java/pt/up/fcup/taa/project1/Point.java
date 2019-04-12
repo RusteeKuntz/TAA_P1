@@ -7,6 +7,7 @@ package pt.up.fcup.taa.project1;
 public class Point {
     
     private int x, y;
+    private Point before, after;
 
     public Point(int x, int y) {
         this.x = x;
@@ -57,6 +58,22 @@ public class Point {
         }
         return true;
     }
+
+	public Point getBefore() {
+		return before;
+	}
+
+	public void setBefore(Point before) {
+		this.before = before;
+	}
+
+	public Point getAfter() {
+		return after;
+	}
+
+	public void setAfter(Point after) {
+		this.after = after;
+	}
     
     
     

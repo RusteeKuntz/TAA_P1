@@ -6,7 +6,7 @@ package pt.up.fcup.taa.project1;
  */
 public class Main {
 
-    private static final int VERTICES = 30;
+    private static final int VERTICES = 50;
 
     public static void main(String[] args) {
 
@@ -15,6 +15,12 @@ public class Main {
         for (int i = 0; i < VERTICES - 3; ++i) {
             grid.addVertex();
             grid.printGrid();
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
     }

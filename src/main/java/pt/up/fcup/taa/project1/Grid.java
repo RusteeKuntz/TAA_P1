@@ -15,7 +15,9 @@ public final class Grid {
     private List<Point> vertices;       //ordered list of current vertices
     private List<Point> freePoints;     //list of points outside of the polygon
     private final int MAX_SIZE = 20;    //max height/width of the grid
-    private final Random rand = new Random(12345);
+    private final Random rand = new Random(123456);
+    private final Window window = new Window();
+    private int counter = 0;
 
     //deprecated
     public Grid(int n, int m) {
@@ -42,9 +44,18 @@ public final class Grid {
         grid[1][2] = PointType.IN;
         grid[2][2] = PointType.IN;
         vertices = new ArrayList<>();
-        vertices.add(new Point(1, 1));
-        vertices.add(new Point(1, 2));
-        vertices.add(new Point(2, 2));
+        Point a = new Point(1, 1);
+        Point b = new Point(1, 2);
+        Point c = new Point(2, 2);
+        a.setBefore(c);
+        a.setAfter(b);
+        b.setBefore(a);
+        b.setAfter(c);
+        c.setBefore(b);
+        c.setAfter(a);
+        vertices.add(a);
+        vertices.add(b);
+        vertices.add(c);
         updateFreePoints();
     }
 
@@ -221,6 +232,16 @@ public final class Grid {
             if (intersects(a, b, c, d)) {
                 return false;
             }
+            if (orientation(a, b, c) == 0) {
+                if (!b.equals(c)) {
+                    return false;
+                }
+            }
+            if (orientation(a, b, d) == 0) {
+                if (!b.equals(d)) {
+                    return false;
+                }
+            }
         }
         return true;
     }
@@ -277,6 +298,10 @@ public final class Grid {
                 }
             }
 
+            if (counter > 14) {
+                counter = counter;
+            }
+
             if (edges.isEmpty()) {
                 freePoints.remove(p);
                 edges.clear();
@@ -298,8 +323,11 @@ public final class Grid {
             }
 
             fillTriangle(a, p, b);
+            p.setBefore(a);
+            p.setAfter(b);
             expand(isBorder(p), 1);
             updateFreePoints();
+            counter++;
             return;
         }
     }
@@ -308,6 +336,7 @@ public final class Grid {
      * Prints the current grid to the console
      */
     public void printGrid() {
+        window.print(vertices, grid.length, grid[0].length);
         for (int i = 0; i < vertices.size(); ++i) {
             grid[vertices.get(i).getX()][vertices.get(i).getY()] = PointType.VERTEX;
         }
